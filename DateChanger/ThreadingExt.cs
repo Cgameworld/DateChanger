@@ -16,6 +16,7 @@ namespace DateChanger
             UIButton aButton = panel.component.AddUIComponent<UIButton>();
             UIButton bButton = panel.component.AddUIComponent<UIButton>();
 
+            //aButton - a
             aButton.size = new Vector2(90f, 30f);
             aButton.textScale = 0.9f;
             aButton.normalBgSprite = "ButtonMenu";
@@ -50,13 +51,11 @@ namespace DateChanger
             aButton.eventClick += (component, check) =>
             {
                 sim.m_timeOffsetTicks = sim.m_timeOffsetTicks + daylength;
-
             };
 
             bButton.eventClick += (component, check) =>
             {
                 sim.m_timeOffsetTicks = sim.m_timeOffsetTicks - daylength;
-
             };
 
 
