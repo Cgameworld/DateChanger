@@ -10,5 +10,7 @@ This mod changes the tick offset value, so no game mechanics are effected
 Currently changes are reset upon reload
 
 Features left to add:
-\n-save date between reloading
--add static mode
+
+- save date between reloading
+
+- add static mode
