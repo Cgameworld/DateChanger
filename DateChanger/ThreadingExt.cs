@@ -12,7 +12,7 @@ namespace DateChanger
         long daylength = 864000000000;
         //value if nothing is set
         string grabbedGameTime = "1/01/2019 12:01:00PM";
-
+        long offsetfactor = 0;
         public override void OnLevelLoaded(LoadMode mode)
         {
             CityInfoPanel panel = UIView.library.Show<CityInfoPanel>("CityInfoPanel");
@@ -35,6 +35,7 @@ namespace DateChanger
             textField.disabledTextColor = new Color32(0, 0, 0, 128);
             textField.color = new Color32(255, 255, 255, 255);
 
+            //textField.tooltip = "Date Format: mm/dd/yyyy";
             textField.size = new Vector2(150f,27f);
             textField.padding.top = 7;
 
@@ -51,20 +52,23 @@ namespace DateChanger
             bButton.canFocus = false;
 
             bButton.width = 80;
-            bButton.text = "Get Date";
+            bButton.text = "Change";
 
             bButton.relativePosition = new Vector3(310f, 448f);
 
             panel.component.height = 321f + 5f + 16f;
+
+            //get it instead from system.string.text
+            //then static mode - system.string.text
             grabbedGameTime = sim.m_currentGameTime.ToString();
             grabbedGameTime = grabbedGameTime.Split(' ')[0];
-            textField.text = grabbedGameTime;
+            textField.text = "dd/mm/yyyy";
 
             bButton.eventClick += (component, check) =>
             {
                 grabbedGameTime = textField.text;
-                Debug.Log(textField.text);
-                bButton.text = "Change";
+                //finds extra tick offset that m_timeOffsetTicks doesn't account for
+                offsetfactor = 0 - (sim.m_currentGameTime.ToBinary() - sim.m_timeOffsetTicks);
                 ChangeDate();
             };
 
@@ -72,21 +76,33 @@ namespace DateChanger
 
         public void ChangeDate()
         {
-            int day = Int32.Parse(grabbedGameTime.Split('/')[0]);
-            int month = Int32.Parse(grabbedGameTime.Split('/')[1]);
+            int day = Int32.Parse(grabbedGameTime.Split('/')[1]);
+            int month = Int32.Parse(grabbedGameTime.Split('/')[0]);
             int year = Int32.Parse(grabbedGameTime.Split('/')[2].Split(' ')[0]);
+            Debug.Log("Values from Field \nDay:" + day + "\nMonth: " + month + "\nYear: " + year);
+            sim.m_timeOffsetTicks = DateToTicks(year,month,day) + offsetfactor;
 
-            long dayTicks = day * daylength;
-            long monthTicks = month * daylength * 30;
-            long yearTicks = year * daylength * 365;
-
-            Debug.Log("DT " + dayTicks);
-            Debug.Log("MT " + monthTicks);
-            Debug.Log("YT " + yearTicks);
-
-            sim.m_timeOffsetTicks = dayTicks + monthTicks + yearTicks;
         }
 
+        //modifed tick calcuation methods from game
+        private static long DateToTicks(int year, int month, int day)
+        {
+            if (year >= 1 && year <= 9999 && month >= 1 && month <= 12)
+            {
+                int[] array = System.DateTime.IsLeapYear(year) ? DaysToMonth366 : DaysToMonth365;
+                if (day >= 1 && day <= array[month] - array[month - 1])
+                {
+                    int num = year - 1;
+                    int num2 = num * 365 + num / 4 - num / 100 + num / 400 + array[month - 1] + day - 1;
+                    return num2 * 864000000000L;
+                }
+            }
+            throw new ArgumentOutOfRangeException("error");
+        }
+        private static readonly int[] DaysToMonth366 = new int[13]
+{0,31,60,91,121,152,182,213,244,274,305,335,366};
+        private static readonly int[] DaysToMonth365 = new int[13]
+ {0,31,59,90,120,151,181,212,243,273,304,334,365};
 
     }
 
