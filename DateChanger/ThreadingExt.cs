@@ -18,7 +18,7 @@ namespace DateChanger
             CityInfoPanel panel = UIView.library.Show<CityInfoPanel>("CityInfoPanel");
             UIButton bButton = panel.component.AddUIComponent<UIButton>();
 
-            //textfield
+            //thanks to SamSamTS for the UI code (UIUtils.cs)
             UITextField textField = panel.component.AddUIComponent<UITextField>();
 
             textField.size = new Vector2(90f, 17f);
@@ -55,13 +55,8 @@ namespace DateChanger
             bButton.text = "Change";
 
             bButton.relativePosition = new Vector3(310f, 448f);
-
             panel.component.height = 321f + 5f + 16f;
 
-            //get it instead from system.string.text
-            //then static mode - system.string.text
-            grabbedGameTime = sim.m_currentGameTime.ToString();
-            grabbedGameTime = grabbedGameTime.Split(' ')[0];
             textField.text = "dd/mm/yyyy";
 
             bButton.eventClick += (component, check) =>
@@ -70,6 +65,7 @@ namespace DateChanger
                 Debug.Log(grabbedGameTime);
                 //finds extra tick offset that m_timeOffsetTicks doesn't account for
                 offsetfactor = 0 - (sim.m_currentGameTime.ToBinary() - sim.m_timeOffsetTicks);
+                //checks if grabbed text has three slashes
                 if (grabbedGameTime.Split('/').Length == 3)
                 {
                     ChangeDate();
@@ -83,21 +79,19 @@ namespace DateChanger
                 {
                     ErrorFormat();
                 }
-
             };
-
         }
-
         public void ChangeDate()
         {
             int x = -1;
+            //checks if each section between the slashes contains a number
             if (Int32.TryParse(grabbedGameTime.Split('/')[1], out x) && Int32.TryParse(grabbedGameTime.Split('/')[0], out x) && Int32.TryParse(grabbedGameTime.Split('/')[2].Split(' ')[0], out x))
             {
                 int day = Int32.Parse(grabbedGameTime.Split('/')[0]);
                 int month = Int32.Parse(grabbedGameTime.Split('/')[1]);
                 int year = Int32.Parse(grabbedGameTime.Split('/')[2].Split(' ')[0]);
                 Debug.Log("Values from Field \nDay:" + day + "\nMonth: " + month + "\nYear: " + year);
-
+               
                 if (day > 31 || month > 12 || year > 9999)
                 {
                     ErrorFormat();
@@ -113,8 +107,9 @@ namespace DateChanger
                 ErrorFormat();
             }
         }
-        public void ChangeYear(){
-            sim.m_timeOffsetTicks = DateToTicks(Int32.Parse(grabbedGameTime.Substring(2,grabbedGameTime.Length-2)),1,1) + offsetfactor;
+        public void ChangeYear()
+        {
+            sim.m_timeOffsetTicks = DateToTicks(Int32.Parse(grabbedGameTime.Substring(2, grabbedGameTime.Length - 2)), 1, 1) + offsetfactor;
         }
         public void ErrorFormat()
         {
@@ -138,9 +133,9 @@ namespace DateChanger
             throw new ArgumentOutOfRangeException("error");
         }
         private static readonly int[] DaysToMonth366 = new int[13]
-{0,31,60,91,121,152,182,213,244,274,305,335,366};
+            {0,31,60,91,121,152,182,213,244,274,305,335,366};
         private static readonly int[] DaysToMonth365 = new int[13]
- {0,31,59,90,120,151,181,212,243,273,304,334,365};
+            {0,31,59,90,120,151,181,212,243,273,304,334,365};
 
     }
 
