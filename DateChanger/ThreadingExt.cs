@@ -35,8 +35,8 @@ namespace DateChanger
             textField.disabledTextColor = new Color32(0, 0, 0, 128);
             textField.color = new Color32(255, 255, 255, 255);
 
-            //textField.tooltip = "Date Format: mm/dd/yyyy";
-            textField.size = new Vector2(150f,27f);
+            textField.tooltip = "Date Format: dd/mm/yyyy";
+            textField.size = new Vector2(150f, 27f);
             textField.padding.top = 7;
 
             textField.relativePosition = new Vector3(140f, 448f);
@@ -67,21 +67,59 @@ namespace DateChanger
             bButton.eventClick += (component, check) =>
             {
                 grabbedGameTime = textField.text;
+                Debug.Log(grabbedGameTime);
                 //finds extra tick offset that m_timeOffsetTicks doesn't account for
                 offsetfactor = 0 - (sim.m_currentGameTime.ToBinary() - sim.m_timeOffsetTicks);
-                ChangeDate();
+                if (grabbedGameTime.Split('/').Length == 3)
+                {
+                    ChangeDate();
+                }
+                //special command to set year eg. >>3000 sets time to 1/1/3000
+                else if (grabbedGameTime.Substring(0, 2) == ">>")
+                {
+                    ChangeYear();
+                }
+                else
+                {
+                    ErrorFormat();
+                }
+
             };
 
         }
 
         public void ChangeDate()
         {
-            int day = Int32.Parse(grabbedGameTime.Split('/')[1]);
-            int month = Int32.Parse(grabbedGameTime.Split('/')[0]);
-            int year = Int32.Parse(grabbedGameTime.Split('/')[2].Split(' ')[0]);
-            Debug.Log("Values from Field \nDay:" + day + "\nMonth: " + month + "\nYear: " + year);
-            sim.m_timeOffsetTicks = DateToTicks(year,month,day) + offsetfactor;
+            int x = -1;
+            if (Int32.TryParse(grabbedGameTime.Split('/')[1], out x) && Int32.TryParse(grabbedGameTime.Split('/')[0], out x) && Int32.TryParse(grabbedGameTime.Split('/')[2].Split(' ')[0], out x))
+            {
+                int day = Int32.Parse(grabbedGameTime.Split('/')[0]);
+                int month = Int32.Parse(grabbedGameTime.Split('/')[1]);
+                int year = Int32.Parse(grabbedGameTime.Split('/')[2].Split(' ')[0]);
+                Debug.Log("Values from Field \nDay:" + day + "\nMonth: " + month + "\nYear: " + year);
 
+                if (day > 31 || month > 12 || year > 9999)
+                {
+                    ErrorFormat();
+                }
+                else
+                {
+                    sim.m_timeOffsetTicks = DateToTicks(year, month, day) + offsetfactor;
+                }
+
+            }
+            else
+            {
+                ErrorFormat();
+            }
+        }
+        public void ChangeYear(){
+            sim.m_timeOffsetTicks = DateToTicks(Int32.Parse(grabbedGameTime.Substring(2,grabbedGameTime.Length-2)),1,1) + offsetfactor;
+        }
+        public void ErrorFormat()
+        {
+            ExceptionPanel panel = UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
+            panel.SetMessage("Date Changer", "Invalid Date Format\nMake sure to format as dd/mm/yyyy\ne.g 31/01/2019", false);
         }
 
         //modifed tick calcuation methods from game
