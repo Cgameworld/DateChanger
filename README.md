@@ -9,6 +9,6 @@ This mod changes the tick offset value, so no game mechanics are effected
 
 Currently changes are reset upon reload
 
-Still to do:
--save date between reloading
+Features left to add:
+\n-save date between reloading
 -add static mode
