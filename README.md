@@ -5,4 +5,4 @@ Adds text field in the city info panel to change the date to anything between 0/
 
 ![Mod use](datechangermod-preview.gif)
 
-This mod changes the offset value, so no game mechanics are affected
+This mod changes the offset value, so no game mechanics are effected
