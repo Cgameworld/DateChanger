@@ -6,3 +6,5 @@ Adds a text field in the city info panel allowing any custom date to be entered 
 ![Mod use](datechangermod-preview.gif)
 
 This mod changes the tick offset value, so no game mechanics are effected
+
+Currently changes are reset upon reload
