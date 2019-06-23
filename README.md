@@ -7,7 +7,7 @@ Adds a text field in the city info panel allowing any custom date to be entered 
 
 This mod changes the tick offset value, so no game mechanics are affected
 
-Date changes are kept when the save game is saved
+Update! - Date changes are kept when the save game is saved
 
 
 Features left to add:
