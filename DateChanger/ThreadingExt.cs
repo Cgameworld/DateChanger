@@ -13,8 +13,24 @@ namespace DateChanger
         //value if nothing is set
         string grabbedGameTime = "1/01/2019 12:01:00PM";
         long offsetfactor = 0;
+
+        //fix for reloading
+        long timeOffsetTicks_Cache;
+        Boolean gamereload = false;
         public override void OnLevelLoaded(LoadMode mode)
         {
+            timeOffsetTicks_Cache = sim.m_timeOffsetTicks;
+            //set time to previously saved value if changed
+            if (SavedValues.savedOffset != 0)
+            {
+                sim.m_timeOffsetTicks = SavedValues.savedOffset;
+            }
+            else if (gamereload)
+            {
+                sim.m_timeOffsetTicks = timeOffsetTicks_Cache;
+            }
+            Debug.Log("Loaded timeOffsetTick value: " + sim.m_timeOffsetTicks);
+
             CityInfoPanel panel = UIView.library.Show<CityInfoPanel>("CityInfoPanel");
             UIButton bButton = panel.component.AddUIComponent<UIButton>();
 
@@ -64,7 +80,9 @@ namespace DateChanger
                 grabbedGameTime = textField.text;
                 Debug.Log(grabbedGameTime);
                 //finds extra tick offset that m_timeOffsetTicks doesn't account for
+
                 offsetfactor = 0 - (sim.m_currentGameTime.ToBinary() - sim.m_timeOffsetTicks);
+
                 //checks if grabbed text has three slashes
                 if (grabbedGameTime.Split('/').Length == 3)
                 {
@@ -75,12 +93,22 @@ namespace DateChanger
                 {
                     ChangeYear();
                 }
+                else if (grabbedGameTime == "recall"){
+                    Debug.Log("recall: " + SavedValues.savedOffset); //displays data value stored
+                }
                 else
                 {
                     ErrorFormat();
                 }
             };
         }
+        public override void OnLevelUnloading()
+        {
+            gamereload = true;
+            SavedValues.savedOffset = 0;
+        }
+
+
         public void ChangeDate()
         {
             int x = -1;
@@ -99,6 +127,8 @@ namespace DateChanger
                 else
                 {
                     sim.m_timeOffsetTicks = DateToTicks(year, month, day) + offsetfactor;
+                    SavedValues.savedOffset = sim.m_timeOffsetTicks;
+                    Debug.Log("saveddata value: " + SavedValues.savedOffset);
                 }
 
             }
@@ -110,6 +140,8 @@ namespace DateChanger
         public void ChangeYear()
         {
             sim.m_timeOffsetTicks = DateToTicks(Int32.Parse(grabbedGameTime.Substring(2, grabbedGameTime.Length - 2)), 1, 1) + offsetfactor;
+            SavedValues.savedOffset = sim.m_timeOffsetTicks;
+            Debug.Log("saveddata value: " + SavedValues.savedOffset);
         }
         public void ErrorFormat()
         {

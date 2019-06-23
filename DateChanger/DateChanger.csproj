@@ -53,6 +53,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SavedValues.cs" />
+    <Compile Include="SerializableDataExtension.cs" />
     <Compile Include="ThreadingExt.cs" />
     <Compile Include="ModListing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
